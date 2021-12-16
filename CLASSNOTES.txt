@@ -1,0 +1,136 @@
+
+12/15/2021
+----------
+
+Test Automation Day 20
+----------------------
+
+Goto google , search for "comcast internet"
+print results count
+
+my actions:
+	created a new maven project
+	added testNg, webdrivermanager, selenium dependencies
+	a package under src.test.java.com.comcast
+		- tests package
+		- pages package
+	added 2 page objects :
+		GoogleHomePage, GoogleResultsPage
+		added all elements,
+	Added test: GoogleSearchTest
+	created objects of Page objects and put together the steps,
+	added assertions
+	I ran the code.
+==============================
+
+I use maven as my build tool for test automation project, so I will go ahead and create a new maven project, hmmmm, lets just name it "comcastTask".
+
+Now i need to add some dependencies to pom.xml. I will need testng, selenium, aaannndd WebDriverManager so that I dont have to download the drivers manually.
+
+Then you goto mvnrepository.com and search for testNG/Junit.
+
+I use testNG/Junit as a testing framework, it helps out with annotations, and assertions.
+
+Lets pick up selenium java dependency now. I use webdriver for UI automation.
+
+Click on maven load changes, and mention my maven is currently downloading the jar files and storing into .m2 folder in my machine.
+
+Lets add WebDriverManager, this library helps with downloading and setting up drivers for different browsers.
+-------------------------------------------
+
+We now have the basic dependencies to get started with automation.
+
+Now its time to add some packages:
+
+net.comcast.tests
+added a test GoogleSearchTest
+Added @BeforeMethod and setUp method
+set up webdrivermanager, initialize chromedriver, maximize, navigated to google page.
+
+added @Test
+located search box using name,and searched for "comcast internet service"
+then printed out the result.
+Then we ran it, it is working good. I normally use page objects instead of findElement method. Should I go ahead and try that way?
+
+They say "Suuure, would be great to see".
+
+lets add a new package called pages.
+Since i am working with Google homepage, i will just name like that.
+
+Add new class GoogleHomePage
+declared WebDriver driver
+Added constructor that accepts WebDriver driver object
+Added PageFactory.initElements(driver, this); to initialize the elements
+=================================
+public class GoogleHomePage {
+    WebDriver driver; //driver to use in this class
+
+    //passing webdriver object using constructor
+    //In @Test: GoogleHomePage gp = new GoogleHomePage(driver);
+    public GoogleHomePage(WebDriver driver) {
+        this.driver = driver;
+        PageFactory.initElements(driver, this);
+    }
+
+}
+
+--------
+Normally, when we have Driver utility class, we do not need to add a WebDriver driver parameter to page object class constructor:
+
+public GoogleHomePage() {
+    PageFactory.initElements(Driver.getDriver(), this);
+}
+
+Since we do not have the Driver utility class:
+
+public GoogleHomePage(WebDriver driver) {
+    this.driver = driver;
+    PageFactory.initElements(driver, this);
+}
+
+Constructor runs whenever we create an object of the class.
+In page objects, we add PageFactory.initElements(driver, this);
+inside the constructor.
+This Class and method will inialize all WebElements with @FindBy annotation.
+
+public class GoogleHomePage {
+    WebDriver driver; //driver to use in this class
+
+    //passing webdriver object using constructor
+    //In @Test: GoogleHomePage gp = new GoogleHomePage(driver);
+    public GoogleHomePage(WebDriver driver) {
+        this.driver = driver;
+        PageFactory.initElements(driver, this);
+    }
+
+    @FindBy(name = "q")
+    public WebElement searchField;
+
+}
+
+PageFactory.initElements will initialize/assign object to searchField webelement using the locator.
+
+Basically it is running  WebElement searchField = driver.findElement(By.name("q")); in the background.
+
+--------------------
+
+Methods in Page object class.
+
+We can add methods to page object classes as behavior of the the class. The method should be according to what user does on this particular page.
+
+public class GoogleHomePage {
+....
+ 	public void searchFor(String item) {
+        searchField.sendKeys(item + Keys.ENTER);
+    }
+    public void isCurrentPage() {
+        assertEquals(driver.getTitle(), "Google");
+    }
+}
+
+searchFor() method describes what user will do on google home page, so it is a good idea to add it. It will make coding even more easier and readable.
+
+
+isCurrentPage() it will help with verifying if it is a google page. not another one. it is doing that by verifying the title.
+
+Now, there is a debate saying that there should not be any assertions done in page object classes. But normally when you go to projects , you will see that assertions in page objects are common way of doing it. it will further make coing easier, since we are also reusing the assertions.
